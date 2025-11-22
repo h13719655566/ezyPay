@@ -27,6 +27,8 @@ public class Payment {
     private String lastName;
     private String zipCode;
     private String last4;
+    private Long amount;      // smallest unit (e.g. 100 = $1.00)
+    private String currency;
 
     @Column(nullable = false, length = 512)
     private String encryptedCardNumber;

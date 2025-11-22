@@ -1,0 +1,12 @@
+package com.rlung.ezpay.dto;
+
+import lombok.Builder;
+import lombok.Data;
+
+@Data
+@Builder
+public class PaymentResponse {
+    private String paymentId;
+    private String status;
+    private String last4; // e.g. "created"
+}
