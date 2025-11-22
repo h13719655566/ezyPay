@@ -26,12 +26,10 @@ public class Payment {
     private String firstName;
     private String lastName;
     private String zipCode;
+    private String last4;
 
     @Column(nullable = false, length = 512)
     private String encryptedCardNumber;
-
-    @Column(nullable = false)
-    private String last4;
 
     private LocalDateTime createdAt;
 }
