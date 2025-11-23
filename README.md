@@ -305,9 +305,17 @@ http://localhost:8080/v3/api-docs
 **Static Spec:**  
 A static `openapi.json` file is included at the root of this repository.
 
+## 🔗 Related Project Link
+
+## 🔗 Related Project Link
+
+| Project | Description | Link |
+| :--- | :--- | :--- |
+| **Backend API Service** | This repository, containing the core payment logic and Webhook delivery service. | [https://github.com/h13719655566/ezyPay](https://github.com/h13719655566/ezyPay) |
+| **Frontend UI** | The user interface for initiating payments and managing Webhook subscriptions. | https://github.com/h13719655566/ezPayFrontend |
+
 ## 🤖 AI Assistance Disclosure
-As required by the challenge instructions, AI-assisted tools (ChatGPT) were used during the development of this solution.  
-A transcript of prompts and iterations is included with the submission.
+ AI-assisted tools (ChatGPT & Gemini) were used during the development of this solution.  
 
 ## 📄 License
 MIT
