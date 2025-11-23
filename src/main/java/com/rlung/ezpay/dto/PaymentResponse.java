@@ -8,5 +8,5 @@ import lombok.Data;
 public class PaymentResponse {
     private String paymentId;
     private String status;
-    private String last4; // e.g. "created"
+    private String last4;
 }

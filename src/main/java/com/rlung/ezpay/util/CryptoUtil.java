@@ -18,7 +18,6 @@ public class CryptoUtil {
     private static final int IV_LENGTH = 12;
     private static final int AES_KEY_SIZE = 256;
 
-    // 這裡不需要改，因為這是 setup 階段，拋出 Exception 讓程式啟動失敗是合理的
     public static String generateKeyBase64() throws Exception {
         KeyGenerator keyGen = KeyGenerator.getInstance(AES);
         keyGen.init(AES_KEY_SIZE);
@@ -26,7 +25,6 @@ public class CryptoUtil {
         return Base64.getEncoder().encodeToString(key.getEncoded());
     }
 
-    // 修改處：拿掉 throws Exception
     public static String encrypt(String plainText, String base64Key) {
         try {
             byte[] keyBytes = Base64.getDecoder().decode(base64Key);
@@ -46,12 +44,10 @@ public class CryptoUtil {
             return Base64.getEncoder().encodeToString(combined);
 
         } catch (GeneralSecurityException | IllegalArgumentException e) {
-            // 這裡將 Checked Exception 包裝成 Unchecked
             throw new EncryptionException("Error occurred while encrypting data", e);
         }
     }
 
-    // 修改處：拿掉 throws Exception
     public static String decrypt(String cipherTextBase64, String base64Key) {
         try {
             byte[] combined = Base64.getDecoder().decode(cipherTextBase64);
@@ -59,7 +55,7 @@ public class CryptoUtil {
             SecretKeySpec key = new SecretKeySpec(keyBytes, AES);
 
             byte[] iv = new byte[IV_LENGTH];
-            // 這裡加個簡單的檢查，避免 ArrayOutBound
+            // avoid ArrayOutBound
             if (combined.length < IV_LENGTH) {
                 throw new IllegalArgumentException("Invalid encrypted data format");
             }
@@ -78,7 +74,6 @@ public class CryptoUtil {
             return new String(decrypted);
 
         } catch (GeneralSecurityException | IllegalArgumentException e) {
-            // 同樣包裝錯誤
             throw new EncryptionException("Error occurred while decrypting data", e);
         }
     }
