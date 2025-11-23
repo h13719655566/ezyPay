@@ -23,7 +23,7 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 public class PaymentService {
 
-    private final PaymentRepository paymentRepository;
+    private final PaymentPersistenceService paymentPersistenceService;
     private final ApplicationEventPublisher eventPublisher;
 
     @Value("${app.encryption.key}")
@@ -62,7 +62,6 @@ public class PaymentService {
     private Payment savePaymentWithRetry(PaymentRequest req, String encryptedCard, String last4) {
         int maxRetries = 3;
         int attempt = 0;
-
         String paymentId = null;
 
         while (attempt < maxRetries) {
@@ -83,7 +82,7 @@ public class PaymentService {
                         .build();
 
                 //  flush to make sure Constraint check works
-                return paymentRepository.saveAndFlush(payment);
+                return paymentPersistenceService.saveInNewTransaction(payment);
 
             } catch (DataIntegrityViolationException e) {
                 // catch ID Duplicate
