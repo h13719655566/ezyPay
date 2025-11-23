@@ -1,6 +1,6 @@
 package com.rlung.ezpay.util;
 
-import com.rlung.ezpay.exception.EncryptionException; // 匯入剛剛建立的 Exception
+import com.rlung.ezpay.exception.EncryptionException;
 
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
