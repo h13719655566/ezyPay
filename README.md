@@ -73,54 +73,13 @@ A scheduler runs every 5 seconds:
 
 ---
 
-## 4. Reliability Guarantees
+## 4. Reliability
 
 - Webhook tasks are persisted before dispatch, ensuring message durability.
 - Retries use exponential backoff with a maximum attempt limit.
 - Merchant-side failures **do not affect** the main payment transaction.
 - Each endpoint has its own stored secret for secure webhook verification.
 
-```mermaid
-flowchart TD
-
-%% =========================
-%% Client → Payment Creation
-%% =========================
-Client[[Client]] 
-    -->|POST /api/payments| PC[PaymentController]
-PC --> PS[PaymentService]
-
-%% Encrypt + Save (with REQUIRES_NEW)
-PS -->|Encrypt card (AES-GCM)\nExtract last4| ENC[CryptoUtil / CardUtil]
-PS -->|Save with retry| PERS[PaymentPersistenceService]
-PERS -->|saveAndFlush| DB1[(payment)]
-
-%% Publish Event
-PS -->|publishEvent(...)| EVT[PaymentCreatedEvent]
-
-%% =========================
-%% AFTER_COMMIT → Create Tasks
-%% =========================
-EVT -->|AFTER_COMMIT| L[WebhookEventListener]
-L --> TS[WebhookTaskService]
-
-TS -->|Select all endpoints| EPDB[(webhook_endpoint)]
-TS -->|Insert webhook tasks| DB2[(webhook_delivery)]
-
-%% =========================
-%% Scheduled Dispatcher
-%% =========================
-SCHED[WebhookScheduler\n@Scheduled(fixedDelay=5s)]
-    --> DISPATCH[WebhookDispatcher]
-
-DISPATCH -->|Load pending tasks\n(success=false AND nextRetryAt < now)| DB2
-DISPATCH -->|POST Webhook\nJSON + HMAC-SHA256| MERCHANT[[Merchant Webhook]]
-
-MERCHANT -->|HTTP response| DISPATCH
-
-%% Update Logs
-DISPATCH -->|Update attempt, statusCode,\nresponseBody, nextRetryAt| DB2
-```
 
 ## ⚙️ Tech Stack
 
@@ -151,8 +110,8 @@ ezPay uses JPA `ddl-auto=update`; tables are generated automatically.
 
 ### 1. Clone repository
 ```bash
-git clone git@github.com:h13719655566/ezyPay.git
-cd ezpay
+git clone git@github.com:h13719655566/ezPay.git
+cd ezPay
 ```
 
 ### 2. Create database
@@ -160,9 +119,11 @@ cd ezpay
 CREATE DATABASE ezpay DEFAULT CHARACTER SET utf8mb4;
 ```
 
-### 3. Configure application.properties
+### 3. Create your own application.properties
 ```
 Create or edit `src/main/resources/application.properties` and fill in your own database credentials and encryption key:
+```
+
 
 ```properties
 spring.application.name=ezpay
@@ -183,16 +144,11 @@ spring.jpa.show-sql=false
 spring.jpa.properties.hibernate.format_sql=true
 spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQL8Dialect
 
-# ==========================================
-# Webhook Dispatcher settings
-# ==========================================
-# Interval for webhook retry jobs (ms)
-app.webhook.dispatcher.fixedDelayMillis=5000
-
 # ===============================
 # AES-256 Encryption Key
 # ===============================
 # Must be exactly 32 bytes (256-bit)
+# example: sGmDWNiCiG+5tFxdPMS91CjsmC/pVcovZx03ajHr5CY=
 app.encryption.key=YOUR_32_BYTE_AES_KEY
 ```
 
@@ -200,6 +156,24 @@ app.encryption.key=YOUR_32_BYTE_AES_KEY
 ```bash
 mvn spring-boot:run
 ```
+
+## 📘 API Documentation
+
+The project complies with **OpenAPI 3.0.1** specifications.
+
+**Swagger UI:**
+```
+http://localhost:8080/swagger-ui.html
+```
+
+**JSON Spec (Live):**
+```
+http://localhost:8080/v3/api-docs
+```
+
+**Static Spec:**  
+A static `openapi.json` file is included at the root of this repository.
+
 
 ## 🔌 API Endpoints
 
@@ -287,25 +261,6 @@ Retries stop after max attempts or on any 2xx success.
 - success  
 - nextRetryAt  
 - createdAt  
-
-## 📘 API Documentation
-
-The project complies with **OpenAPI 3.0.1** specifications.
-
-**Swagger UI:**  
-```
-http://localhost:8080/swagger-ui.html
-```
-
-**JSON Spec (Live):**  
-```
-http://localhost:8080/v3/api-docs
-```
-
-**Static Spec:**  
-A static `openapi.json` file is included at the root of this repository.
-
-## 🔗 Related Project Link
 
 ## 🔗 Related Project Link
 
